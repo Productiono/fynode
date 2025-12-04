@@ -19,21 +19,21 @@ if ( ! class_exists( 'Merlin' ) ) {
  */
 $wizard = new Merlin(
 
-	$config = array(
-		'directory'            => 'includes/merlin', // Location / directory where Merlin WP is placed in your theme.
-		'merlin_url'           => 'merlin', // The wp-admin page slug where Merlin WP loads.
-		'parent_slug'          => 'themes.php', // The wp-admin parent page slug for the admin menu item.
-		'capability'           => 'manage_options', // The capability required for this menu to be displayed to the user.
-		'child_action_btn_url' => 'https://codex.wordpress.org/child_themes', // URL for the 'child-action-link'.
-		'dev_mode'             => true, // Enable development mode for testing.
-		'license_step'         => true, // EDD license activation step.
-		'license_required'     => true, // Require the license activation step.
-		'license_help_url'     => 'https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-', // URL for the 'license-tooltip'.
-		'edd_remote_api_url'   => '', // EDD_Theme_Updater_Admin remote_api_url.
-		'edd_item_name'        => '', // EDD_Theme_Updater_Admin item_name.
-		'edd_theme_slug'       => '', // EDD_Theme_Updater_Admin item_slug.
-		'ready_big_button_url' => '', // Link for the big button on the ready step.
-	),
+$config = array(
+'directory'            => 'includes/merlin', // Location / directory where Merlin WP is placed in your theme.
+'merlin_url'           => 'merlin', // The wp-admin page slug where Merlin WP loads.
+'parent_slug'          => 'themes.php', // The wp-admin parent page slug for the admin menu item.
+'capability'           => 'manage_options', // The capability required for this menu to be displayed to the user.
+'child_action_btn_url' => 'https://codex.wordpress.org/child_themes', // URL for the 'child-action-link'.
+'dev_mode'             => true, // Enable development mode for testing.
+'license_step'         => false, // License activation step disabled for GPL build.
+'license_required'     => false, // License activation not required.
+'license_help_url'     => '', // No license tooltip for GPL build.
+'edd_remote_api_url'   => '', // EDD_Theme_Updater_Admin remote_api_url.
+'edd_item_name'        => '', // EDD_Theme_Updater_Admin item_name.
+'edd_theme_slug'       => '', // EDD_Theme_Updater_Admin item_slug.
+'ready_big_button_url' => '', // Link for the big button on the ready step.
+),
 	$strings = array(
 		'admin-menu'               => esc_html__( 'Theme Setup', '@@textdomain' ),
 

@@ -872,12 +872,9 @@ class Merlin {
 	/**
 	 * Theme EDD license step.
 	 */
-	protected function license() {
-        if(fynode_get_registered_purchase_code()) {
-            wp_safe_redirect(home_url().'/wp-admin/themes.php?page=merlin&step=plugins');
-        }
+protected function license() {
 
-		$is_theme_registered = $this->is_theme_registered();
+$is_theme_registered = true;
 		$action_url          = $this->theme_license_help_url;
 		$required            = $this->license_required;
 
@@ -1029,13 +1026,8 @@ class Merlin {
 	/**
 	 * Theme plugins
 	 */
-	protected function plugins() {
-        if(empty(fynode_get_registered_purchase_code())) {
-            echo "<p>".esc_html__('Please verify the purchase code first.','fynode')."</p>";
-			return new WP_Error( 'klbtheme_api_error', "Please verify the purchase code first. Automatic registration is not possible." );
-        }
-
-		// Variables.
+protected function plugins() {
+// Variables.
 		$url    = wp_nonce_url( add_query_arg( array( 'plugins' => 'go' ) ), 'merlin' );
 		$method = '';
 		$fields = array_keys( $_POST );
@@ -1161,11 +1153,7 @@ class Merlin {
 	/**
 	 * Page setup
 	 */
-	protected function content() {
-        if(empty(fynode_get_registered_purchase_code())) {
-            echo "<p>".esc_html__('Please verify the purchase code first.','fynode')."</p>";
-			return new WP_Error( 'klbtheme_api_error', "Please verify the purchase code first. Automatic registration is not possible." );
-        }
+protected function content() {
 
 		$import_info = $this->get_import_data_info();
 
@@ -1433,59 +1421,25 @@ class Merlin {
 	/**
 	 * Activate the theme (license key) via AJAX.
 	 */
-	public function _ajax_activate_license() {
+public function _ajax_activate_license() {
 
-		if ( ! check_ajax_referer( 'merlin_nonce', 'wpnonce' ) ) {
-			wp_send_json(
-				array(
-					'success' => false,
-					'message' => esc_html__( 'Yikes! The theme activation failed. Please try again or contact support.', 'merlin-wp' ),
-				)
-			);
-		}
+if ( ! check_ajax_referer( 'merlin_nonce', 'wpnonce' ) ) {
+wp_send_json(
+array(
+'success' => false,
+'message' => esc_html__( 'Invalid request.', 'merlin-wp' ),
+)
+);
+}
 
-		if ( empty( $_POST['license_key'] ) ) {
-			wp_send_json(
-				array(
-					'success' => false,
-					'message' => esc_html__( 'Please add your license key before attempting to activate one.', 'merlin-wp' ),
-				)
-			);
-		}
+wp_send_json(
+array(
+'success' => true,
+'message' => esc_html__( 'Theme activation not required for this build.', 'merlin-wp' ),
+)
+);
 
-		$license_key = sanitize_key( $_POST['license_key'] );
-
-		$api_endpoint = 'http://api.klbtheme.com/wp-json/klb/v1/purchase/';
-
-		$request = wp_remote_get( $api_endpoint . $license_key, array(
-			'method'    => 'GET',
-			'timeout'   => 500,
-			'body' => array(
-				'domain' => home_url(),
-			),
-		) );
-
-		if ( is_wp_error( $request ) ) {
-			return new WP_Error( 'klbtheme_api_error', "There is a problem contacting the KlbTheme server. Automatic registration is not possible." );
-		}
-		
-		$response_code = wp_remote_retrieve_response_code( $request );
-		
-		if ( 200 !== $response_code ) {
-			$response_data = json_decode( wp_remote_retrieve_body( $request ), true );
-			wp_send_json(
-				array(
-					'success' => false,
-					'message' => $response_data['message'],
-				)
-			);
-			return new WP_Error( $response_data['code'], $response_data['message'] . ' Automatic registration is not possible.' );
-		} 
-		
-		update_option( 'envato_purchase_code_52295978', $license_key );
-		wp_send_json( array('success' => true,'message' => 'The theme registered succesfully.',));
-
-	}
+}
 
 	/**
 	 * Activate the EDD license.
@@ -1497,97 +1451,12 @@ class Merlin {
 	 *
 	 * @return array
 	 */
-	protected function edd_activate_license( $license ) {
-		$success = false;
+protected function edd_activate_license( $license ) {
+$success = true;
+$message = esc_html__( 'Theme activation not required for this build.', 'merlin-wp' );
 
-		// Strings passed in from the config file.
-		$strings = $this->strings;
-
-		// Theme Name.
-		$theme = ucfirst( $this->theme );
-
-		// Remove "Child" from the current theme name, if it's installed.
-		$theme = str_replace( ' Child', '', $theme );
-
-		// Text strings.
-		$success_message = $strings['license-json-success%s'];
-
-		// Data to send in our API request.
-		$api_params = array(
-			'edd_action' => 'activate_license',
-			'license'    => rawurlencode( $license ),
-			'item_name'  => rawurlencode( $this->edd_item_name ),
-			'url'        => esc_url( home_url( '/' ) ),
-		);
-
-		$response = $this->edd_get_api_response( $api_params );
-
-		// Make sure the response came back okay.
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-
-			if ( is_wp_error( $response ) ) {
-				$message = $response->get_error_message();
-			} else {
-				$message = esc_html__( 'An error occurred, please try again.', 'merlin-wp' );
-			}
-		} else {
-
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-			if ( false === $license_data->success ) {
-
-				switch ( $license_data->error ) {
-
-					case 'expired':
-						$message = sprintf(
-							/* translators: Expiration date */
-							esc_html__( 'Your license key expired on %s.', 'merlin-wp' ),
-							date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
-						);
-						break;
-
-					case 'revoked':
-						$message = esc_html__( 'Your license key has been disabled.', 'merlin-wp' );
-						break;
-
-					case 'missing':
-						$message = esc_html__( 'This appears to be an invalid license key. Please try again or contact support.', 'merlin-wp' );
-						break;
-
-					case 'invalid':
-					case 'site_inactive':
-						$message = esc_html__( 'Your license is not active for this URL.', 'merlin-wp' );
-						break;
-
-					case 'item_name_mismatch':
-						/* translators: EDD Item Name */
-						$message = sprintf( esc_html__( 'This appears to be an invalid license key for %s.', 'merlin-wp' ), $this->edd_item_name );
-						break;
-
-					case 'no_activations_left':
-						$message = esc_html__( 'Your license key has reached its activation limit.', 'merlin-wp' );
-						break;
-
-					default:
-						$message = esc_html__( 'An error occurred, please try again.', 'merlin-wp' );
-						break;
-				}
-			} else {
-				if ( 'valid' === $license_data->license ) {
-					$message = sprintf( esc_html( $success_message ), $theme );
-					$success = true;
-
-					// Removes the default EDD hook for this option, which breaks the AJAX call.
-					remove_all_actions( 'update_option_' . $this->edd_theme_slug . '_license_key', 10 );
-
-					update_option( $this->edd_theme_slug . '_license_key_status', $license_data->license );
-					update_option( $this->edd_theme_slug . '_license_key', $license );
-				}
-			}
-		}
-
-		return compact( 'success', 'message' );
-	}
+return compact( 'success', 'message' );
+}
 
 	/**
 	 * Makes a call to the API.
@@ -1598,21 +1467,10 @@ class Merlin {
 	 * @param array $api_params to be used for wp_remote_get.
 	 * @return array $response JSON response.
 	 */
-	private function edd_get_api_response( $api_params ) {
+private function edd_get_api_response( $api_params ) {
 
-		$verify_ssl = (bool) apply_filters( 'edd_sl_api_request_verify_ssl', true );
-
-		$response = wp_remote_post(
-			$this->edd_remote_api_url,
-			array(
-				'timeout'   => 15,
-				'sslverify' => $verify_ssl,
-				'body'      => $api_params,
-			)
-		);
-
-		return $response;
-	}
+return array();
+}
 
 	/**
 	 * Content template for the child theme functions.php file.

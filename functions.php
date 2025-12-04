@@ -12,7 +12,6 @@
 *************************************************/ 
 function fynode_admin_styles() {
 	wp_enqueue_style('fynode-klbtheme',     get_template_directory_uri() .'/assets/css/admin/klbtheme.css');
-    wp_enqueue_script('fynode-register',    get_template_directory_uri() .'/assets/js/admin/register.js', array('jquery'), '1.0', true);
 	wp_register_style( 'fynode-klbtheme-icons', 	get_template_directory_uri() .'/assets/css/klbtheme.css', false, '1.0');
 	wp_register_style( 'fynode-klbtheme-social', 	get_template_directory_uri() .'/assets/css/klbtheme-social.css', false, '1.0');
 }
@@ -584,13 +583,12 @@ if ( ! function_exists( 'fynode_ft' ) ) {
 /*************************************************
 ## Fynode Theme options
 *************************************************/
-	require_once get_template_directory() . '/includes/metaboxes.php';
-	require_once get_template_directory() . '/includes/woocommerce.php';
-	require_once get_template_directory() . '/includes/woocommerce-filter.php';
-	require_once get_template_directory() . '/includes/pjax/filter-functions.php';
-	require_once get_template_directory() . '/includes/sanitize.php';
-	require_once get_template_directory() . '/includes/merlin/theme-register.php';
-	require_once get_template_directory() . '/includes/merlin/setup-wizard.php';
-	require_once get_template_directory() . '/includes/header/main-header.php';
-	require_once get_template_directory() . '/includes/footer/main_footer.php';
-	require_once get_template_directory() . '/includes/woocommerce/tab-ajax.php';
+require_once get_template_directory() . '/includes/metaboxes.php';
+require_once get_template_directory() . '/includes/woocommerce.php';
+require_once get_template_directory() . '/includes/woocommerce-filter.php';
+require_once get_template_directory() . '/includes/pjax/filter-functions.php';
+require_once get_template_directory() . '/includes/sanitize.php';
+require_once get_template_directory() . '/includes/merlin/setup-wizard.php';
+require_once get_template_directory() . '/includes/header/main-header.php';
+require_once get_template_directory() . '/includes/footer/main_footer.php';
+require_once get_template_directory() . '/includes/woocommerce/tab-ajax.php';
