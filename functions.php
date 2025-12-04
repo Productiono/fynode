@@ -127,8 +127,28 @@ function fynode_theme_setup() {
 add_action( 'after_setup_theme', 'fynode_theme_setup' );
 
 /*************************************************
+## Load plugin textdomains at init
+*************************************************/
+
+function fynode_load_plugin_textdomains() {
+
+        $locale  = determine_locale();
+        $plugins = array(
+                'kirki'       => WP_LANG_DIR . '/plugins/kirki-' . $locale . '.mo',
+                'fynode-core' => WP_LANG_DIR . '/plugins/fynode-core-' . $locale . '.mo',
+        );
+
+        foreach ( $plugins as $domain => $mofile ) {
+                if ( file_exists( $mofile ) ) {
+                        load_textdomain( $domain, $mofile );
+                }
+        }
+}
+add_action( 'init', 'fynode_load_plugin_textdomains' );
+
+/*************************************************
 ## Include the TGM_Plugin_Activation class.
-*************************************************/ 
+*************************************************/
 
 require_once get_template_directory() . '/includes/class-tgm-plugin-activation.php';
 
